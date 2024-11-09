@@ -5,7 +5,7 @@ VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sdtbuBOT", "sdtbuBOT\sdtbuBOT.csproj", "{28137C18-C16C-45AC-AEE8-8C0FBC1905CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sdtbuhelperLib", "..\sdtbuhelper\sdtbuhelperLib\sdtbuhelperLib.csproj", "{DDC4244F-094B-4163-83B8-C014896AE1FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sdtbuhelperLib", "sdtbuhelperLib\sdtbuhelperLib.csproj", "{DDC4244F-094B-4163-83B8-C014896AE1FC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
