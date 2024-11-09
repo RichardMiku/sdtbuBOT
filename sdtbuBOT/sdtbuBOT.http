@@ -1,0 +1,6 @@
+@sdtbuBOT_HostAddress = http://localhost:5152
+
+GET {{sdtbuBOT_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
