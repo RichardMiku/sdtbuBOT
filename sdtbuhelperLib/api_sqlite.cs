@@ -19,16 +19,30 @@ namespace sdtbuhelperLib
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
-                string sql = "CREATE TABLE IF NOT EXISTS Users (STUID TEXT PRIMARY KEY, PASSWD TEXT, CHECKID INTEGER)";
-                using (var command = new SqliteCommand(sql, connection))
+
+                // 检查表是否存在
+                string checkTableSql = "SELECT name FROM sqlite_master WHERE type='table' AND name='Users'";
+                using (var checkCommand = new SqliteCommand(checkTableSql, connection))
                 {
-                    command.ExecuteNonQuery();
+                    var result = checkCommand.ExecuteScalar();
+                    if (result != null)
+                    {
+                        Console.WriteLine("Table 'Users' already exists.");
+                        return;
+                    }
+                }
+
+                // 如果表不存在则创建
+                string createTableSql = "CREATE TABLE IF NOT EXISTS Users (STUID TEXT PRIMARY KEY, PASSWD TEXT, CHECKID TEXT)";
+                using (var createCommand = new SqliteCommand(createTableSql, connection))
+                {
+                    createCommand.ExecuteNonQuery();
                 }
             }
         }
 
         // 插入用户的方法
-        public void InsertUser(string stuid, string passwd, int checkid)
+        public void InsertUser(string stuid, string passwd, string checkid)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {
@@ -45,7 +59,7 @@ namespace sdtbuhelperLib
         }
 
         // 更新用户的方法
-        public void UpdateUser(string stuid, string passwd, int checkid)
+        public void UpdateUser(string stuid, string passwd, string checkid)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {
@@ -91,11 +105,11 @@ namespace sdtbuhelperLib
                         if (reader.Read())
                         {
                             return new Dictionary<string, object>
-                                {
-                                    { "STUID", reader["STUID"] },
-                                    { "PASSWD", reader["PASSWD"] },
-                                    { "CHECKID", reader["CHECKID"] }
-                                };
+                                    {
+                                        { "STUID", reader["STUID"] },
+                                        { "PASSWD", reader["PASSWD"] },
+                                        { "CHECKID", reader["CHECKID"] }
+                                    };
                         }
                     }
                 }
