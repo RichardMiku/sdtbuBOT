@@ -91,15 +91,15 @@ namespace sdtbuhelperLib
         }
 
         // 查询用户的方法，返回一个字典
-        public Dictionary<string, object> GetUser(string stuid)
+        public Dictionary<string, object> GetUser(string checkid)
         {
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
-                string sql = "SELECT * FROM Users WHERE STUID = @STUID";
+                string sql = "SELECT * FROM Users WHERE CHECKID = @CHECKID";
                 using (var command = new SqliteCommand(sql, connection))
                 {
-                    command.Parameters.AddWithValue("@STUID", stuid);
+                    command.Parameters.AddWithValue("@CHECKID", checkid);
                     using (var reader = command.ExecuteReader())
                     {
                         if (reader.Read())
@@ -114,7 +114,7 @@ namespace sdtbuhelperLib
                     }
                 }
             }
-            return null; // 如果没有找到用户，返回null
+            return new Dictionary<string, object> { { "CHECKID", "Null" } }; // 如果没有找到用户，返回null
         }
     }
 }

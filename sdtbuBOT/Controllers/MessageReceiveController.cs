@@ -12,12 +12,45 @@ namespace sdtbuBOT.Controllers
         [HttpPost(Name = "msgreceive")]
         public async Task<IActionResult> Post([FromForm] MessageReceive msgReceive)
         {
-            JObject jsource = JObject.Parse(msgReceive.Source);
+            JObject jsource = JObject.Parse(msgReceive.Source);//解析来源信息
+            string fromid = (string)jsource["from"]["id"];//获取来源id
+
+            //功能-智慧山商-个人信息
+            if (msgReceive.Content == "个人信息")
+            {
+                if (strUINFO.isBIND(fromid))
+                {
+                    string usrinfo = await strUINFO.USRINFO(fromid);
+                    var response = new
+                    {
+                        success = true,
+                        data = new { type = "text", content = usrinfo }
+                    };
+
+                    return new JsonResult(response);
+                }
+                else
+                {
+                    var response = new
+                    {
+                        success = true,
+                        data = new { type = "text", content = strMenu.INFObindMSG() }
+                    };
+
+                    return new JsonResult(response);
+                }
+            }
 
             //菜单-绑定智慧山商
-            if(strUINFO.BindRegex(msgReceive.Content))
+            if (strUINFO.BindRegex(msgReceive.Content))
             {
-                strUINFO.BindSDTBU((string)jsource["from"]["id"], msgReceive.Content);
+                var response = new
+                {
+                    success = true,
+                    data = new { type = "text", content = strUINFO.BindSDTBU(fromid, msgReceive.Content) }
+                };
+
+                return new JsonResult(response);
             }
 
             //菜单-主菜单
