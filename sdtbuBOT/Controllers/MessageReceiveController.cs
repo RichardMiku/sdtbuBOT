@@ -14,7 +14,7 @@ namespace sdtbuBOT.Controllers
         {
             JObject jsource = JObject.Parse(msgReceive.Source);//解析来源信息
             string fromid = (string)jsource["from"]["id"];//获取来源id
-            //string room = (string)jsource["room"]["id"];//获取群id
+            //string room = (string)jsource["room"]["id"];//获取群id_
 
             //功能-智慧山商-下一节课
             if (strCMD.cmd_NextCourse(msgReceive.Content)) 
