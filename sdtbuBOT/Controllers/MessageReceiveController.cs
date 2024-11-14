@@ -16,6 +16,32 @@ namespace sdtbuBOT.Controllers
             string fromid = (string)jsource["from"]["id"];//获取来源id
             //string room = (string)jsource["room"]["id"];//获取群id
 
+            //功能-智慧山商-下一节课
+            if (strCMD.cmd_NextCourse(msgReceive.Content)) 
+            {
+                if (strUINFO.isBIND(fromid))
+                {
+                    string usrcourse = await strUCOURSE.USRNEXTCOURSE(fromid);
+                    var response = new
+                    {
+                        success = true,
+                        data = new { type = "text", content = usrcourse }
+                    };
+
+                    return new JsonResult(response);
+                }
+                else
+                {
+                    var response = new
+                    {
+                        success = true,
+                        data = new { type = "text", content = strMenu.INFObindMSG() }
+                    };
+
+                    return new JsonResult(response);
+                }
+            }
+
             //功能-智慧山商-课表查询
             if (strCMD.cmd_COURSE(msgReceive.Content))
             {
@@ -104,9 +130,9 @@ namespace sdtbuBOT.Controllers
                 return new JsonResult(response);
             }
 
-            if (msgReceive.Content == "测试")
+            if (msgReceive.Content == "当前时间")
             {
-                await botapi.SendMessage((string)jsource["from"]["id"],"测试成功");
+                await botapi.SendMessage((string)jsource["from"]["id"], DateTime.Now.ToString());
             }
 
             return Ok();
