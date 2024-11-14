@@ -130,6 +130,16 @@ namespace sdtbuBOT.Controllers
                 return new JsonResult(response);
             }
 
+            //加好友请求
+            if(msgReceive.Type== "friendship")
+            {
+                var response = new
+                {
+                    success = true
+                };
+                return new JsonResult(response);
+            }
+
             if (msgReceive.Content == "当前时间")
             {
                 await botapi.SendMessage((string)jsource["from"]["id"], DateTime.Now.ToString());

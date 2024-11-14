@@ -34,7 +34,7 @@ namespace sdtbuBOT.strFunc
                 usrinfo += Femoji[i] + _userinfo.ElementAt(i).Key + ":" + _userinfo.ElementAt(i).Value + newLine[i];
             }
             _sdtbuAPI.Dispose();//释放资源
-            // 返回用户信息字符串
+                                // 返回用户信息字符串
             return usrinfo;
         }
 
@@ -95,8 +95,18 @@ namespace sdtbuBOT.strFunc
                 api_sqlite _sqliteAPI = new api_sqlite("Data Source=USERS.db");
                 // 创建表格（如果不存在）
                 _sqliteAPI.CreateTable();
-                // 插入用户信息
-                _sqliteAPI.InsertUser(SDTBUaccount, SDTBUpasswd, wxid);
+                // 检查用户是否存在
+                var user = _sqliteAPI.GetUser(wxid);
+                if (user["CHECKID"].ToString() == "Null")
+                {
+                    // 用户不存在，插入用户信息
+                    _sqliteAPI.InsertUser(SDTBUaccount, SDTBUpasswd, wxid);
+                }
+                else
+                {
+                    // 用户存在，更新用户信息
+                    _sqliteAPI.UpdateUser(SDTBUaccount, SDTBUpasswd, wxid);
+                }
                 // 检查是否绑定成功
                 if (isBIND(wxid))
                 {
