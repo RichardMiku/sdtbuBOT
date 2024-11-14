@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 using sdtbuBOT.strFunc;
 
 namespace sdtbuBOT.Controllers
@@ -11,6 +12,14 @@ namespace sdtbuBOT.Controllers
         [HttpPost(Name = "msgreceive")]
         public async Task<IActionResult> Post([FromForm] MessageReceive msgReceive)
         {
+            JObject jsource = JObject.Parse(msgReceive.Source);
+
+            //菜单-绑定智慧山商
+            if(strUINFO.BindRegex(msgReceive.Content))
+            {
+                strUINFO.BindSDTBU((string)jsource["from"]["id"], msgReceive.Content);
+            }
+
             //菜单-主菜单
             if (strCMD.cmd_MENU(msgReceive.Content)) 
             {
@@ -22,6 +31,7 @@ namespace sdtbuBOT.Controllers
 
                 return new JsonResult(response);
             }
+
             //菜单-智慧山商
             if (msgReceive.Content == "智慧山商")
             {
@@ -32,6 +42,11 @@ namespace sdtbuBOT.Controllers
                 };
 
                 return new JsonResult(response);
+            }
+
+            if (msgReceive.Content == "测试")
+            {
+                await botapi.SendMessage((string)jsource["from"]["id"],"测试成功");
             }
 
             return Ok();

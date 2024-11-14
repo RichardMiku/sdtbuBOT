@@ -1,0 +1,21 @@
+services:
+  sdtbubot:
+    image: ${DOCKER_REGISTRY-}sdtbubot
+    build:
+      context: .
+      dockerfile: sdtbuBOT/Dockerfile
+    environment:
+      WEBHOOK_URL: "http://wxbot:3001/webhook/msg/v2?token=richardmikuwebot"
+
+  wxBotWebhook:
+    image: registry.cn-hangzhou.aliyuncs.com/ricimages/docker-wechatbot-webhook
+    container_name: wxbot
+    #volumes:
+    #  - ./wxBot_logs:/app/log
+    ports:
+      - "3001:3001"
+    environment:
+      LOG_LEVEL: info
+      RECVD_MSG_API: http://sdtbubot:8080/MessageReceive
+      LOGIN_API_TOKEN: richardmikuwebot
+    restart: unless-stopped
