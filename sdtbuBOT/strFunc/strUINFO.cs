@@ -33,6 +33,7 @@ namespace sdtbuBOT.strFunc
             {
                 usrinfo += Femoji[i] + _userinfo.ElementAt(i).Key + ":" + _userinfo.ElementAt(i).Value + newLine[i];
             }
+            _sdtbuAPI.Dispose();//释放资源
             // 返回用户信息字符串
             return usrinfo;
         }

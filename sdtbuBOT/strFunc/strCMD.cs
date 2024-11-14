@@ -21,7 +21,7 @@
         /// </summary>
         /// <param name="CMDmenu">命令内容</param>
         /// <returns></returns>
-        public static bool cmd_Course(string CMDmenu)
+        public static bool cmd_COURSE(string CMDmenu)
         {
             bool isCMD = CMDmenu == "课表查询" || CMDmenu == "/class"
                 || CMDmenu == "课程查询" || CMDmenu == "/course"
