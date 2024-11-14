@@ -1,4 +1,4 @@
-name: Build and Deploy Docker Compose
+name: Build and Deploy Docker Image
 
 on:
   push:
@@ -26,12 +26,11 @@ jobs:
       run: |
         echo ${{ secrets.ALICLOUD_PASSWORD }} | docker login --username ${{ secrets.ALICLOUD_USERNAME }} registry.cn-hangzhou.aliyuncs.com --password-stdin
 
-    - name: Build and push Docker images
+    - name: Build and push Docker image
       run: |
-        docker-compose -f docker-compose.yml build
-        docker tag sdtbubot:latest registry.cn-hangzhou.aliyuncs.com/ricxx/wxbot:latest
+        docker build -f sdtbuBOT/Dockerfile -t registry.cn-hangzhou.aliyuncs.com/ricxx/wxbot:latest --build-arg CONFIGURATION=Release .
         docker push registry.cn-hangzhou.aliyuncs.com/ricxx/wxbot:latest
 
-    - name: Deploy Docker Compose services
+    - name: Deploy Docker Container
       run: |
-        docker-compose -f docker-compose.yml up -d
+        docker run -d --name sdtbubot -p 80:8080 registry.cn-hangzhou.aliyuncs.com/ricxx/wxbot:latest
