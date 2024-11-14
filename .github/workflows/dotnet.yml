@@ -21,13 +21,13 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore sdtbuBOT.sln
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build sdtbuBOT.sln --no-restore --configuration Release
     - name: Test
-      run: dotnet test --no-build --verbosity normal --configuration Release
+      run: dotnet test sdtbuBOT.sln --no-build --verbosity normal --configuration Release
     - name: Publish
-      run: dotnet publish --no-build --configuration Release --output ./publish
+      run: dotnet publish sdtbuBOT.sln --no-build --configuration Release --output ./publish
     - name: Upload artifact
       uses: actions/upload-artifact@v3
       with:
