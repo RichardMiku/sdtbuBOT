@@ -28,10 +28,12 @@ jobs:
 
     - name: Build and push Docker images
       run: |
-        docker-compose -f sdtbuBOT/docker-compose.yml build
+        cd sdtbuBOT
+        docker-compose -f docker-compose.yml build
         docker tag sdtbuBOT:latest registry.cn-hangzhou.aliyuncs.com/your-repo/sdtbuBOT:latest
         docker push registry.cn-hangzhou.aliyuncs.com/your-repo/sdtbuBOT:latest
 
     - name: Deploy Docker Compose services
       run: |
-        docker-compose -f sdtbuBOT/docker-compose.yml up -d
+        cd sdtbuBOT
+        docker-compose -f docker-compose.yml up -d
