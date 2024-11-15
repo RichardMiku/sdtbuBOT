@@ -154,7 +154,7 @@ namespace sdtbuBOT.Controllers
                 success = true
             };
 
-            return new JsonResult(noneresponse);
+            return new JsonResult(noneresponse);//返回成功值
         }
     }
 }
