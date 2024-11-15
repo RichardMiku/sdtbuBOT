@@ -16,6 +16,18 @@ namespace sdtbuBOT.Controllers
             string fromid = (string)jsource["from"]["id"];//获取来源id
             //string room = (string)jsource["room"]["id"];//获取群id_
 
+            //功能-使用说明
+            if (msgReceive.Content == "/使用说明")
+            {
+                var response = new
+                {
+                    success = true,
+                    data = new { type = "text", content = strMenu.MENU_HELP() }
+                };
+
+                return new JsonResult(response);
+            }
+
             //功能-智慧山商-下一节课
             if (strCMD.cmd_NextCourse(msgReceive.Content)) 
             {
@@ -141,6 +153,7 @@ namespace sdtbuBOT.Controllers
                 return new JsonResult(response);
             }
 
+            //测试功能-当前时间
             if (msgReceive.Content == "当前时间")
             {
                 await botapi.SendMessage((string)jsource["from"]["id"], DateTime.Now.ToString());
