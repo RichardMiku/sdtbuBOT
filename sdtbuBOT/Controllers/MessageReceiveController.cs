@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
+using sdtbuBOT.Funny;
 using sdtbuBOT.strFunc;
 
 namespace sdtbuBOT.Controllers
@@ -15,6 +16,43 @@ namespace sdtbuBOT.Controllers
             JObject jsource = JObject.Parse(msgReceive.Source);//解析来源信息
             string fromid = (string)jsource["from"]["id"];//获取来源id
             //string room = (string)jsource["room"]["id"];//获取群id_
+
+            //功能-娱乐-一言
+            if (msgReceive.Content == "一言")
+            {
+                hitokoto _hitokoto = new hitokoto();
+                var response = new
+                {
+                    success = true,
+                    data = new { type = "text", content = await _hitokoto.hitokotoGetAsync() }
+                };
+
+                return new JsonResult(response);
+            }
+
+            //菜单-版本信息
+            if(msgReceive.Content == "版本信息")
+            {
+                var response = new
+                {
+                    success = true,
+                    data = new { type = "text", content = strMenu.INFO_BOTVERSION }
+                };
+
+                return new JsonResult(response);
+            }
+
+            //菜单-功能设想
+            if (msgReceive.Content == "功能设想")
+            {
+                var response = new
+                {
+                    success = true,
+                    data = new { type = "text", content = strMenu.FuncDEVINFO() }
+                };
+
+                return new JsonResult(response);
+            }
 
             //功能-使用说明
             if (msgReceive.Content == "/使用说明")
