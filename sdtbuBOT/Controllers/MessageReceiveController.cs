@@ -106,6 +106,7 @@ namespace sdtbuBOT.Controllers
                 return new JsonResult(response);
             }
 
+
             //菜单-主菜单
             if (strCMD.cmd_MENU(msgReceive.Content)) 
             {

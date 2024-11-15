@@ -174,23 +174,16 @@ namespace sdtbuBOT.strFunc
             string input = msgcontent;
             // 定义正则表达式匹配绑定命令
             // 正则表达式解释：
-            // "绑定" - 匹配命令 "绑定"
+            // "信息绑定" - 匹配命令 "信息绑定"
             // @"\s+" - 匹配一个或多个空白字符
-            // "(\p{L}+)" - 匹配一个或多个字母字符（包括中文）
+            // "(\d+)" - 匹配一个或多个数字字符（学号）
             // @"\s+" - 再次匹配一个或多个空白字符
-            // "(\p{L}+)" - 再次匹配一个或多个字母字符（包括中文）
-            Regex regex = new Regex(@"信息绑定\s+([\p{L}\p{N}\p{P}\p{S}]+)\s+([\p{L}\p{N}\p{P}\p{S}]+)");
+            // "([^\u4e00-\u9fa5]+)" - 匹配一个或多个非中文字符（密码）
+            Regex regex = new Regex(@"信息绑定\s+(\d+)\s+([^\u4e00-\u9fa5]+)");
             // 匹配输入命令
             Match match = regex.Match(input);
             // 如果匹配成功，返回true，否则返回false
-            if (match.Success)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return match.Success;
         }
     }
 }
