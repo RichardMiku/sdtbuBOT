@@ -33,7 +33,7 @@ namespace sdtbuhelperLib
                 }
 
                 // 如果表不存在则创建
-                string createTableSql = "CREATE TABLE IF NOT EXISTS Users (STUID TEXT PRIMARY KEY, PASSWD TEXT, CHECKID TEXT)";
+                string createTableSql = "CREATE TABLE IF NOT EXISTS Users (STUID TEXT PRIMARY KEY, PASSWD TEXT, CHECKID TEXT, LOGIN BOOLEAN)";
                 using (var createCommand = new SqliteCommand(createTableSql, connection))
                 {
                     createCommand.ExecuteNonQuery();
@@ -47,12 +47,13 @@ namespace sdtbuhelperLib
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
-                string sql = "INSERT INTO Users (STUID, PASSWD, CHECKID) VALUES (@STUID, @PASSWD, @CHECKID)";
+                string sql = "INSERT INTO Users (STUID, PASSWD, CHECKID, LOGIN) VALUES (@STUID, @PASSWD, @CHECKID, @LOGIN)";
                 using (var command = new SqliteCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@STUID", stuid);
                     command.Parameters.AddWithValue("@PASSWD", passwd);
                     command.Parameters.AddWithValue("@CHECKID", checkid);
+                    command.Parameters.AddWithValue("@LOGIN", false); // 默认登录状态为假
                     command.ExecuteNonQuery();
                 }
             }
@@ -64,12 +65,28 @@ namespace sdtbuhelperLib
             using (var connection = new SqliteConnection(_connectionString))
             {
                 connection.Open();
-                string sql = "UPDATE Users SET PASSWD = @PASSWD, CHECKID = @CHECKID WHERE STUID = @STUID";
+                string sql = "UPDATE Users SET STUID = @STUID, PASSWD = @PASSWD WHERE CHECKID = @CHECKID";
                 using (var command = new SqliteCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@STUID", stuid);
                     command.Parameters.AddWithValue("@PASSWD", passwd);
                     command.Parameters.AddWithValue("@CHECKID", checkid);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        // 更新用户登录状态的方法
+        public void UpdateUserLoginStatus(string stuid, bool loginStatus)
+        {
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+                string sql = "UPDATE Users SET LOGIN = @LOGIN WHERE STUID = @STUID";
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@STUID", stuid);
+                    command.Parameters.AddWithValue("@LOGIN", loginStatus);
                     command.ExecuteNonQuery();
                 }
             }
@@ -105,16 +122,43 @@ namespace sdtbuhelperLib
                         if (reader.Read())
                         {
                             return new Dictionary<string, object>
-                                    {
-                                        { "STUID", reader["STUID"] },
-                                        { "PASSWD", reader["PASSWD"] },
-                                        { "CHECKID", reader["CHECKID"] }
-                                    };
+                                        {
+                                            { "STUID", reader["STUID"] },
+                                            { "PASSWD", reader["PASSWD"] },
+                                            { "CHECKID", reader["CHECKID"] },
+                                            { "LOGIN", reader["LOGIN"] }
+                                        };
                         }
                     }
                 }
             }
             return new Dictionary<string, object> { { "CHECKID", "Null" } }; // 如果没有找到用户，返回null
+        }
+        // 获取已登录的用户
+        public Dictionary<string, object> GetLoggedInUser()
+        {
+            using (var connection = new SqliteConnection(_connectionString))
+            {
+                connection.Open();
+                string sql = "SELECT * FROM Users WHERE LOGIN = 1 ORDER BY RANDOM() LIMIT 1";
+                using (var command = new SqliteCommand(sql, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Dictionary<string, object>
+                                    {
+                                        { "STUID", reader["STUID"] },
+                                        { "PASSWD", reader["PASSWD"] },
+                                        { "CHECKID", reader["CHECKID"] },
+                                        { "LOGIN", reader["LOGIN"] }
+                                    };
+                        }
+                    }
+                }
+            }
+            return null; // 如果没有找到已登录的用户，返回null
         }
     }
 }

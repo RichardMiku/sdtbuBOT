@@ -8,7 +8,7 @@ namespace sdtbuBOT.strFunc
         /// <summary>
         /// 绑定消息
         /// </summary>
-        private static string BINDmsg { get; set; }
+        public static string BINDmsg { get; set; }
 
         /// <summary>
         /// 获取用户信息
@@ -48,7 +48,7 @@ namespace sdtbuBOT.strFunc
         /// </summary>
         /// <param name="wxid">微信uid</param>
         /// <returns></returns>
-        public static bool isBIND(string wxid)
+        public static async Task<bool> isBIND(string wxid)
         {
             // 创建SQLite API实例，连接到USERS.db数据库
             api_sqlite _sqliteAPI = new api_sqlite("Data Source=USERS.db");
@@ -59,27 +59,44 @@ namespace sdtbuBOT.strFunc
             // 检查用户的CHECKID是否与微信id匹配
             if (_user["CHECKID"].ToString() == wxid)
             {
-                // 如果匹配，尝试登录智慧山商，并返回登录状态
+                // 如果匹配，尝试登录智慧山商，并返回个人信息
                 api_sdtbu _sdtbuAPI = new api_sdtbu(_user["STUID"].ToString(), _user["PASSWD"].ToString());
                 bool isLogin = _sdtbuAPI.IsLogin();//返回登录状态
-                BINDmsg = isLogin ? "添加智慧山商账号成功！" : "智慧山商登录失败！";
-                if (isLogin)
+                try
                 {
-                    //登录成功事件
+                    BINDmsg = await USRINFO(wxid);//返回个人信息
+                    _sqliteAPI.UpdateUserLoginStatus(_user["STUID"].ToString(), isLogin);//更新登录状态
                     _sdtbuAPI.Dispose();//释放资源
+                    return true;
                 }
-                else
+                catch
                 {
-                    //登录失败事件
+                    // 登录失败，尝试使用一个已经登录成功的账号进行一次登录
+                    var loggedInUser = _sqliteAPI.GetLoggedInUser();
+                    if (loggedInUser != null)
+                    {
+                        api_sdtbu _backupSdtbuAPI = new api_sdtbu(loggedInUser["STUID"].ToString(), loggedInUser["PASSWD"].ToString());
+                        try
+                        {
+                            await _backupSdtbuAPI.GetUserInfo();
+                            _backupSdtbuAPI.Dispose();//释放资源
+                        }
+                        catch
+                        {
+                            _sqliteAPI.DeleteUser(loggedInUser["STUID"].ToString());//删除登录失败的账号
+                            _backupSdtbuAPI.Dispose();//释放资源
+                        }
+                    }
 
-                    //实现重新使用正确的账号密码登录，避免被banip
+                    BINDmsg = "智慧山商登录失败！请检查账号密码是否存在问题！";
+                    _sdtbuAPI.Dispose();//释放资源
+                    return false;
                 }
-                return isLogin;
             }
             else
             {
                 // 如果不匹配，返回false
-                BINDmsg = "添加智慧山商账号失败！";
+                BINDmsg = "数据库添加智慧山商账号失败！";
                 return false;
             }
         }
@@ -90,7 +107,7 @@ namespace sdtbuBOT.strFunc
         /// <param name="wxid">微信昵称</param>
         /// <param name="bindMSG">绑定命令</param>
         /// <returns></returns>
-        public static string BindSDTBU(string wxid, string bindMSG)
+        public static async Task<string> BindSDTBU(string wxid, string bindMSG)
         {
             // 获取绑定命令的输入
             string input = bindMSG;
@@ -128,7 +145,7 @@ namespace sdtbuBOT.strFunc
                     _sqliteAPI.UpdateUser(SDTBUaccount, SDTBUpasswd, wxid);
                 }
                 // 检查是否绑定成功
-                if (isBIND(wxid))
+                if (await isBIND(wxid)) 
                 {
                     // 返回绑定成功信息
                     return BINDmsg;

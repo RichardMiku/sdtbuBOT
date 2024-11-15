@@ -19,7 +19,7 @@ namespace sdtbuBOT.Controllers
             //功能-智慧山商-下一节课
             if (strCMD.cmd_NextCourse(msgReceive.Content)) 
             {
-                if (strUINFO.isBIND(fromid))
+                if (await strUINFO.isBIND(fromid))
                 {
                     string usrcourse = await strUCOURSE.USRNEXTCOURSE(fromid);
                     var response = new
@@ -45,7 +45,7 @@ namespace sdtbuBOT.Controllers
             //功能-智慧山商-课表查询
             if (strCMD.cmd_COURSE(msgReceive.Content))
             {
-                if(strUINFO.isBIND(fromid))
+                if(await strUINFO.isBIND(fromid))
                 {
                     string usrcourse = await strUCOURSE.USRCOURSE(fromid);
                     var response = new
@@ -71,9 +71,9 @@ namespace sdtbuBOT.Controllers
             //功能-智慧山商-个人信息
             if (msgReceive.Content == "个人信息")
             {
-                if (strUINFO.isBIND(fromid))
+                if (await strUINFO.isBIND(fromid))
                 {
-                    string usrinfo = await strUINFO.USRINFO(fromid);
+                    string usrinfo = strUINFO.BINDmsg;
                     var response = new
                     {
                         success = true,
@@ -100,7 +100,7 @@ namespace sdtbuBOT.Controllers
                 var response = new
                 {
                     success = true,
-                    data = new { type = "text", content = strUINFO.BindSDTBU(fromid, msgReceive.Content) }
+                    data = new { type = "text", content =await strUINFO.BindSDTBU(fromid, msgReceive.Content) }
                 };
 
                 return new JsonResult(response);
