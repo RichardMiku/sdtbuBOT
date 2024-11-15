@@ -143,6 +143,7 @@ namespace sdtbuBOT.Controllers
             if (msgReceive.Content == "当前时间")
             {
                 await botapi.SendMessage((string)jsource["from"]["id"], DateTime.Now.ToString());
+                return Ok();
             }
 
             return Ok();
