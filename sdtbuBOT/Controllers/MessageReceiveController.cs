@@ -146,7 +146,14 @@ namespace sdtbuBOT.Controllers
                 return Ok();
             }
 
-            return Ok();
+
+            //默认返回值，报告框架消息已处理
+            var noneresponse = new
+            {
+                success = true
+            };
+
+            return new JsonResult(noneresponse);
         }
     }
 }
