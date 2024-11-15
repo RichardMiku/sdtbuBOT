@@ -19,12 +19,20 @@ namespace sdtbuBOT.strFunc
             Dictionary<string, object> _user = _sqliteAPI.GetUser(wxid);
             // 创建智慧山商API实例，使用用户的学号和密码
             api_sdtbu _sdtbuAPI = new api_sdtbu(_user["STUID"].ToString(), _user["PASSWD"].ToString());
-            // 获取下一节课程信息
-            string course = await _sdtbuAPI.NextCourse();
-            // 在课程信息前添加📖符号
-            course = "📖" + course;
-            // 返回课程信息
-            return course;
+            try
+            {
+                // 获取下一节课程信息
+                string course = await _sdtbuAPI.NextCourse();
+                // 在课程信息前添加📖符号
+                course = "📖" + course;
+                // 返回课程信息
+                return course;
+            }
+            catch
+            {
+                // 如果获取课程信息失败，返回错误信息
+                return "获取课程信息失败，请确认是否已结课或联系管理员反馈！";
+            }
         }
 
         /// <summary>
@@ -42,23 +50,31 @@ namespace sdtbuBOT.strFunc
             Dictionary<string, object> _user = _sqliteAPI.GetUser(wxid);
             // 创建智慧山商API实例，使用用户的学号和密码
             api_sdtbu _sdtbuAPI = new api_sdtbu(_user["STUID"].ToString(), _user["PASSWD"].ToString());
-            // 获取课程列表字符串
-            var course = await _sdtbuAPI.CourseListString();
-            // 初始化课程信息字符串
-            string _COURSE = "";
-            // 遍历课程列表
-            for (int i = 0; i < course.Count; i++)
+            try
             {
-                // 拼接课程信息字符串
-                _COURSE += "📖" + course[i];
-                // 如果不是最后一门课程，添加换行符
-                if (i < course.Count - 1)
+                // 获取课程列表字符串
+                var course = await _sdtbuAPI.CourseListString();
+                // 初始化课程信息字符串
+                string _COURSE = "";
+                // 遍历课程列表
+                for (int i = 0; i < course.Count; i++)
                 {
-                    _COURSE += "\n\n";
+                    // 拼接课程信息字符串
+                    _COURSE += "📖" + course[i];
+                    // 如果不是最后一门课程，添加换行符
+                    if (i < course.Count - 1)
+                    {
+                        _COURSE += "\n\n";
+                    }
                 }
+                // 返回课程信息字符串
+                return _COURSE;
             }
-            // 返回课程信息字符串
-            return _COURSE;
+            catch
+            {
+                // 如果获取课程信息失败，返回错误信息
+                return "获取课程信息失败，请确认是否已结课或联系管理员反馈！";
+            }
         }
     }
 }

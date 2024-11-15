@@ -14,7 +14,7 @@ namespace sdtbuBOT.Controllers
         [HttpGet(Name = "healthcheck")]
         public IActionResult Get()
         {
-            return Ok("Bot Start Successful");
+            return Ok("BotAPI Start Successful");
         }
     }
 }

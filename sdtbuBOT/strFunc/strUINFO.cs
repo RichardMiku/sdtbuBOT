@@ -6,6 +6,11 @@ namespace sdtbuBOT.strFunc
     public class strUINFO
     {
         /// <summary>
+        /// 绑定消息
+        /// </summary>
+        private static string BINDmsg { get; set; }
+
+        /// <summary>
         /// 获取用户信息
         /// </summary>
         /// <param name="wxid">微信id</param>
@@ -54,12 +59,27 @@ namespace sdtbuBOT.strFunc
             // 检查用户的CHECKID是否与微信id匹配
             if (_user["CHECKID"].ToString() == wxid)
             {
-                // 如果匹配，返回true
-                return true;
+                // 如果匹配，尝试登录智慧山商，并返回登录状态
+                api_sdtbu _sdtbuAPI = new api_sdtbu(_user["STUID"].ToString(), _user["PASSWD"].ToString());
+                bool isLogin = _sdtbuAPI.IsLogin();//返回登录状态
+                BINDmsg = isLogin ? "添加智慧山商账号成功！" : "智慧山商登录失败！";
+                if (isLogin)
+                {
+                    //登录成功事件
+                    _sdtbuAPI.Dispose();//释放资源
+                }
+                else
+                {
+                    //登录失败事件
+
+                    //实现重新使用正确的账号密码登录，避免被banip
+                }
+                return isLogin;
             }
             else
             {
                 // 如果不匹配，返回false
+                BINDmsg = "添加智慧山商账号失败！";
                 return false;
             }
         }
@@ -111,12 +131,12 @@ namespace sdtbuBOT.strFunc
                 if (isBIND(wxid))
                 {
                     // 返回绑定成功信息
-                    return "绑定成功！";
+                    return BINDmsg;
                 }
                 else
                 {
                     // 返回绑定失败信息
-                    return "绑定失败";
+                    return BINDmsg;
                 }
             }
             else

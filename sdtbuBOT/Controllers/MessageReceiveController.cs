@@ -94,7 +94,7 @@ namespace sdtbuBOT.Controllers
                 }
             }
 
-            //菜单-绑定智慧山商
+            //功能-智慧山商-绑定智慧山商
             if (strUINFO.BindRegex(msgReceive.Content))
             {
                 var response = new
