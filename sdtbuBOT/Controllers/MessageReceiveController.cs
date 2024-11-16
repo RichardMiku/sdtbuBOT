@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using sdtbuBOT.Funny;
 using sdtbuBOT.strFunc;
+using zhipuLib;
 
 namespace sdtbuBOT.Controllers
 {
@@ -15,197 +16,238 @@ namespace sdtbuBOT.Controllers
         {
             JObject jsource = JObject.Parse(msgReceive.Source);//解析来源信息
             string fromid = (string)jsource["from"]["id"];//获取来源id
-            //string room = (string)jsource["room"]["id"];//获取群id_
 
-            //功能-娱乐-一言
-            if (msgReceive.Content == "一言")
+            switch (msgReceive.Content)
             {
-                hitokoto _hitokoto = new hitokoto();
-                var response = new
-                {
-                    success = true,
-                    data = new { type = "text", content = await _hitokoto.hitokotoGetAsync() }
-                };
-
-                return new JsonResult(response);
-            }
-
-            //菜单-版本信息
-            if(msgReceive.Content == "版本信息")
-            {
-                var response = new
-                {
-                    success = true,
-                    data = new { type = "text", content = strMenu.INFO_BOTVERSION }
-                };
-
-                return new JsonResult(response);
-            }
-
-            //菜单-功能设想
-            if (msgReceive.Content == "功能设想")
-            {
-                var response = new
-                {
-                    success = true,
-                    data = new { type = "text", content = strMenu.FuncDEVINFO() }
-                };
-
-                return new JsonResult(response);
-            }
-
-            //功能-使用说明
-            if (msgReceive.Content == "/使用说明")
-            {
-                var response = new
-                {
-                    success = true,
-                    data = new { type = "text", content = strMenu.MENU_HELP() }
-                };
-
-                return new JsonResult(response);
-            }
-
-            //功能-智慧山商-下一节课
-            if (strCMD.cmd_NextCourse(msgReceive.Content)) 
-            {
-                if (await strUINFO.isBIND(fromid))
-                {
-                    string usrcourse = await strUCOURSE.USRNEXTCOURSE(fromid);
-                    var response = new
+                //菜单-GPT说明
+                case "GPT说明":
                     {
-                        success = true,
-                        data = new { type = "text", content = usrcourse }
-                    };
+                        var response = new
+                        {
+                            success = true,
+                            data = new { type = "text", content = strMenu.MENU_GPT() }
+                        };
 
-                    return new JsonResult(response);
-                }
-                else
-                {
-                    var response = new
+                        return new JsonResult(response);
+                    }
+                //功能-智慧山商-下一节课
+                case "下节课":
                     {
-                        success = true,
-                        data = new { type = "text", content = strMenu.INFObindMSG() }
-                    };
+                        return await HandleNextCourse(fromid);
+                    }
+                //功能-智慧山商-课表查询
+                case "课表查询":
+                    {
+                        return await HandleCourseQuery(fromid);
+                    }
+                //菜单-主菜单
+                case "菜单":
+                    {
+                        var response = new
+                        {
+                            success = true,
+                            data = new { type = "text", content = strMenu.MENU_Index() }
+                        };
 
-                    return new JsonResult(response);
-                }
+                        return new JsonResult(response);
+                    }
+                //功能-娱乐-一言
+                case "一言":
+                    {
+                        hitokoto _hitokoto = new hitokoto();
+                        var response = new
+                        {
+                            success = true,
+                            data = new { type = "text", content = await _hitokoto.hitokotoGetAsync() }
+                        };
+
+                        return new JsonResult(response);
+                    }
+                //菜单-版本信息
+                case "版本信息":
+                    {
+                        var response = new
+                        {
+                            success = true,
+                            data = new { type = "text", content = strMenu.INFO_BOTVERSION }
+                        };
+
+                        return new JsonResult(response);
+                    }
+                //菜单-功能设想
+                case "功能设想":
+                    {
+                        var response = new
+                        {
+                            success = true,
+                            data = new { type = "text", content = strMenu.FuncDEVINFO() }
+                        };
+
+                        return new JsonResult(response);
+                    }
+                //菜单-使用说明
+                case "/使用说明":
+                    {
+                        var response = new
+                        {
+                            success = true,
+                            data = new { type = "text", content = strMenu.MENU_HELP() }
+                        };
+
+                        return new JsonResult(response);
+                    }
+                //功能-智慧山商-个人信息
+                case "个人信息":
+                    {
+                        return await HandlePersonalInfo(fromid);
+                    }
+                //菜单-智慧山商
+                case "智慧山商":
+                    {
+                        var response = new
+                        {
+                            success = true,
+                            data = new { type = "text", content = strMenu.MENU_sdtbu() }
+                        };
+
+                        return new JsonResult(response);
+                    }
+                case "当前时间":
+                    {
+                        await botapi.SendMessage((string)jsource["from"]["id"], DateTime.Now.ToString());
+                        var noneresponse = new
+                        {
+                            success = true
+                        };
+
+                        return new JsonResult(noneresponse);//返回成功值
+                    }
+                default:
+                    {
+                        //功能-智普清言AI-被@时回复
+                        if (msgReceive.IsMentioned == "1")
+                        {
+                            var response = new
+                            {
+                                success = true,
+                                data = new { type = "text", content = await api_AI.zhipu_ReadContent(msgReceive.Content ?? "你好") }
+                            };
+
+                            return new JsonResult(response);
+                        }
+
+                        //功能-智慧山商-绑定智慧山商
+                        if (strUINFO.BindRegex(msgReceive.Content))
+                        {
+                            var response = new
+                            {
+                                success = true,
+                                data = new { type = "text", content = await strUINFO.BindSDTBU(fromid, msgReceive.Content) }
+                            };
+
+                            return new JsonResult(response);
+                        }
+
+
+                        //默认返回值，报告框架消息已处理
+                        var noneresponse = new
+                        {
+                            success = true
+                        };
+
+                        return new JsonResult(noneresponse);//返回成功值
+                    }
             }
+        }
 
-            //功能-智慧山商-课表查询
-            if (strCMD.cmd_COURSE(msgReceive.Content))
+        /// <summary>
+        /// 消息处理-智慧山商-下一节课
+        /// </summary>
+        /// <param name="fromid">来源id</param>
+        /// <returns></returns>
+        private async Task<IActionResult> HandleNextCourse(string fromid)
+        {
+            if (await strUINFO.isBIND(fromid))
             {
-                if(await strUINFO.isBIND(fromid))
+                string usrcourse = await strUCOURSE.USRNEXTCOURSE(fromid);
+                var response = new
                 {
-                    string usrcourse = await strUCOURSE.USRCOURSE(fromid);
-                    var response = new
-                    {
-                        success = true,
-                        data = new { type = "text", content = usrcourse }
-                    };
+                    success = true,
+                    data = new { type = "text", content = usrcourse }
+                };
 
-                    return new JsonResult(response);
-                }
-                else
-                {
-                    var response = new
-                    {
-                        success = true,
-                        data = new { type = "text", content = strMenu.INFObindMSG() }
-                    };
-
-                    return new JsonResult(response);
-                }
+                return new JsonResult(response);
             }
-
-            //功能-智慧山商-个人信息
-            if (msgReceive.Content == "个人信息")
-            {
-                if (await strUINFO.isBIND(fromid))
-                {
-                    string usrinfo = strUINFO.BINDmsg;
-                    var response = new
-                    {
-                        success = true,
-                        data = new { type = "text", content = usrinfo }
-                    };
-
-                    return new JsonResult(response);
-                }
-                else
-                {
-                    var response = new
-                    {
-                        success = true,
-                        data = new { type = "text", content = strMenu.INFObindMSG() }
-                    };
-
-                    return new JsonResult(response);
-                }
-            }
-
-            //功能-智慧山商-绑定智慧山商
-            if (strUINFO.BindRegex(msgReceive.Content))
+            else
             {
                 var response = new
                 {
                     success = true,
-                    data = new { type = "text", content =await strUINFO.BindSDTBU(fromid, msgReceive.Content) }
+                    data = new { type = "text", content = strMenu.INFObindMSG() }
                 };
 
                 return new JsonResult(response);
             }
+        }
 
+        /// <summary>
+        /// 消息处理-智慧山商-课表查询
+        /// </summary>
+        /// <param name="fromid">来源id</param>
+        /// <returns></returns>
+        private async Task<IActionResult> HandleCourseQuery(string fromid)
+        {
+            if (await strUINFO.isBIND(fromid))
+            {
+                string usrcourse = await strUCOURSE.USRCOURSE(fromid);
+                var response = new
+                {
+                    success = true,
+                    data = new { type = "text", content = usrcourse }
+                };
 
-            //菜单-主菜单
-            if (strCMD.cmd_MENU(msgReceive.Content)) 
+                return new JsonResult(response);
+            }
+            else
             {
                 var response = new
                 {
                     success = true,
-                    data = new { type = "text", content = strMenu.MENU_Index() }
+                    data = new { type = "text", content = strMenu.INFObindMSG() }
                 };
 
                 return new JsonResult(response);
             }
+        }
 
-            //菜单-智慧山商
-            if (msgReceive.Content == "智慧山商")
+        /// <summary>
+        /// 消息处理-智慧山商-个人信息
+        /// </summary>
+        /// <param name="fromid"></param>
+        /// <returns></returns>
+        private async Task<IActionResult> HandlePersonalInfo(string fromid)
+        {
+            if (await strUINFO.isBIND(fromid))
+            {
+                string usrinfo = strUINFO.BINDmsg;
+                var response = new
+                {
+                    success = true,
+                    data = new { type = "text", content = usrinfo }
+                };
+
+                return new JsonResult(response);
+            }
+            else
             {
                 var response = new
                 {
                     success = true,
-                    data = new { type = "text", content = strMenu.MENU_sdtbu() }
+                    data = new { type = "text", content = strMenu.INFObindMSG() }
                 };
 
                 return new JsonResult(response);
             }
-
-            //加好友请求
-            if(msgReceive.Type== "friendship")
-            {
-                var response = new
-                {
-                    success = true
-                };
-                return new JsonResult(response);
-            }
-
-            //测试功能-当前时间
-            if (msgReceive.Content == "当前时间")
-            {
-                await botapi.SendMessage((string)jsource["from"]["id"], DateTime.Now.ToString());
-                return Ok();
-            }
-
-
-            //默认返回值，报告框架消息已处理
-            var noneresponse = new
-            {
-                success = true
-            };
-
-            return new JsonResult(noneresponse);//返回成功值
         }
     }
 }

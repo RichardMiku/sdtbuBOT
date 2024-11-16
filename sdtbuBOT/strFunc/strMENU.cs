@@ -7,7 +7,13 @@ namespace sdtbuBOT.strFunc
         /// <summary>
         /// 机器人版本
         /// </summary>
-        public static string INFO_BOTVERSION = "v1.0.2";
+        public static string INFO_BOTVERSION = "v1.2.0";
+
+        public static string MENU_GPT()
+        {
+            string GPTusing = "🤖机器人小助手现以接入生成式AI，@机器人助手即可开始使用！";
+            return GPTusing;
+        }
 
         /// <summary>
         /// 使用说明
@@ -48,6 +54,7 @@ namespace sdtbuBOT.strFunc
                 "🚀智慧山商🚀\n" +
                 "👋一言👋\n" +
                 "❔功能设想❔\n" +
+                "🚀GPT说明🚀\n" +
                 "🤖版本信息🤖\n" +
                 "更多帮助请发送：“/使用说明”";
             return menTXT;

@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\zhipuLib\zhipuLib.csproj" />
     <ProjectReference Include="..\sdtbuhelperLib\sdtbuhelperLib.csproj" />
   </ItemGroup>
 

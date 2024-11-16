@@ -6,6 +6,7 @@ services:
       dockerfile: sdtbuBOT/Dockerfile
     environment:
       WEBHOOK_URL: "http://wxbot:3001/webhook/msg/v2?token=richardmikuwebot"
+      ZHIPU_API_KEY: ""
     container_name: sdtbubot
 
   wxBotWebhook:
