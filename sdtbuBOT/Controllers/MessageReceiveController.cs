@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using sdtbuBOT.Funny;
 using sdtbuBOT.strFunc;
@@ -14,8 +15,20 @@ namespace sdtbuBOT.Controllers
         [HttpPost(Name = "msgreceive")]
         public async Task<IActionResult> Post([FromForm] MessageReceive msgReceive)
         {
-            JObject jsource = JObject.Parse(msgReceive.Source);//解析来源信息
-            string fromid = (string)jsource["from"]["id"];//获取来源id
+            //JObject jsource = JObject.Parse(msgReceive.Source);//解析来源信息
+            //string fromid = (string)jsource["from"]["id"];//获取来源id
+            var JsonSource = JsonConvert.DeserializeObject<dynamic>(msgReceive.Source);//动态解析来源信息为对象
+            string fromid = JsonSource.from.id;//获取来源id
+
+            //加好友请求
+            if (msgReceive.Type == "friendship")
+            {
+                var response = new
+                {
+                    success = true
+                };
+                return new JsonResult(response);
+            }
 
             switch (msgReceive.Content)
             {
@@ -114,7 +127,7 @@ namespace sdtbuBOT.Controllers
                     }
                 case "当前时间":
                     {
-                        await botapi.SendMessage((string)jsource["from"]["id"], DateTime.Now.ToString());
+                        await botapi.SendMessage(JsonSource.from.id, DateTime.Now.ToString());
                         var noneresponse = new
                         {
                             success = true
@@ -124,6 +137,17 @@ namespace sdtbuBOT.Controllers
                     }
                 default:
                     {
+                        //功能-智普清言AI-私聊回复
+                        if (JsonSource.room.id == null) 
+                        {
+                            var response = new
+                            {
+                                success = true,
+                                data = new { type = "text", content = await api_AI.zhipu_ReadContent(msgReceive.Content ?? "你好") }
+                            };
+
+                            return new JsonResult(response);
+                        }
                         //功能-智普清言AI-被@时回复
                         if (msgReceive.IsMentioned == "1")
                         {
@@ -157,6 +181,8 @@ namespace sdtbuBOT.Controllers
 
                         return new JsonResult(noneresponse);//返回成功值
                     }
+            
+
             }
         }
 
